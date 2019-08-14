@@ -100,7 +100,7 @@ class _PlaygroundViewState extends State<PlaygroundView> {
         shrinkWrap: true,
         itemCount: items.length,
         itemBuilder: (BuildContext context, int index) {
-            return _playgroundListItem(index, context);
+          return _playgroundListItem(index, context);
         });
   }
 
@@ -150,10 +150,10 @@ class _PlaygroundViewState extends State<PlaygroundView> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => _PlaygroundDetail(
-              child: childWidget,
-              appBarColor: widget.appBarColor,
-              customTitle: customTitle,
-            ),
+          child: childWidget,
+          appBarColor: widget.appBarColor,
+          customTitle: customTitle,
+        ),
       ),
     );
   }
@@ -190,4 +190,3 @@ class _PlaygroundDetail extends StatelessWidget {
     );
   }
 }
-

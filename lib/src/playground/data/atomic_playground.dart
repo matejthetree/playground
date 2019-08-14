@@ -15,33 +15,36 @@ class _Strings {
 }
 
 class AtomicPlaygroundComponent {
-  static List<AtomicPlaygroundComponent> _components = [];
   final AtomicType type;
   final String title;
   final Widget component;
 
-  AtomicPlaygroundComponent({@required AtomicType type, @required String title, @required Widget component})
+  AtomicPlaygroundComponent(
+      {@required AtomicType type,
+      @required String title,
+      @required Widget component})
       : this.title = title,
         this.type = type,
-        this.component = component {
-    _components.add(this);
-  }
+        this.component = component;
 
-  Widget asPlaygroundEntry() {
+  Widget asPlaygroundWidget() {
     return PlaygroundWidget(
       child: component,
       title: title,
     );
   }
 
-  static List<AtomicPlaygroundComponent> _getComponents() {
-    return _components;
-  }
 }
 
 class AtomicPlaygroundDatasource implements PlaygroundDataSource {
+  List<PlaygroundEntry> entries;
+  Iterable<AtomicPlaygroundComponent> _components;
+
+  AtomicPlaygroundDatasource(this.entries)
+      : _components = entries.expand((entry) => [...entry.components]);
+
   @override
-  List<Widget> getList() {
+  List<Widget> getAtomicList() {
     return [
       PlaygroundWidget(
         title: _Strings.atomTitle,
@@ -66,12 +69,9 @@ class AtomicPlaygroundDatasource implements PlaygroundDataSource {
     ];
   }
 
-  List<Widget> _generateFor(AtomicType type) {
-    return AtomicPlaygroundComponent._getComponents().where((component) {
-      return component.type == type;
-    }).map((component) {
-      return component.asPlaygroundEntry();
-    }).toList();
-  }
+  List<Widget> _generateFor(AtomicType type) => _components.where((component) {
+        return component.type == type;
+      }).map((component) {
+        return component.asPlaygroundWidget();
+      }).toList();
 }
-

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wamf_playground/wamf_playground.dart';
-
+import 'src/entries/flat_button_entry.dart';
+import 'src/entries/simple_form_entry.dart';
+import 'src/entries/grid_view_entry.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -22,9 +24,22 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: Scaffold(
-        body: AtomicPlaygroundView(),
+        body: AtomicPlaygroundView(
+          entries: [
+            FlatButtonEntry(),
+            ..._moleculeEntries(),
+
+          ],
+        ),
       ),
     );
+  }
+
+  List<PlaygroundEntry> _moleculeEntries() {
+    return [
+      SimpleFormEntry(),
+      GridViewEntry()
+    ];
   }
 }
 
