@@ -33,10 +33,9 @@ class AtomicPlaygroundComponent {
       title: title,
     );
   }
-
 }
 
-class AtomicPlaygroundDatasource implements PlaygroundDataSource {
+class AtomicPlaygroundDatasource {
   List<PlaygroundEntry> entries;
   Iterable<AtomicPlaygroundComponent> _components;
 
@@ -67,6 +66,20 @@ class AtomicPlaygroundDatasource implements PlaygroundDataSource {
         child: PlaygroundView(widgetList: _generateFor(AtomicType.page)),
       ),
     ];
+  }
+
+  List<Widget> getIssueList() {
+    var list = [];
+    list = entries
+        .map((entry) => PlaygroundWidget(
+              title: entry.title,
+              child: PlaygroundView(
+                  widgetList: entry.components
+                      .map((component) => component.asPlaygroundWidget())
+                      .toList()),
+            ))
+        .toList();
+    return list;
   }
 
   List<Widget> _generateFor(AtomicType type) => _components.where((component) {
