@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wamf_playground/wamf_playground.dart';
 
-class FlatButtonEntry extends PlaygroundEntry {
+class WAMF_1_FlatButtonEntry extends PlaygroundEntry {
 
 
   @override

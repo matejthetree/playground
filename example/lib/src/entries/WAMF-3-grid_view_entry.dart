@@ -2,12 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:wamf_playground/wamf_playground.dart';
 
-class GridViewEntry extends PlaygroundEntry {
+class WAMF_3_GridViewEntry extends PlaygroundEntry {
   @override
   List<AtomicPlaygroundComponent> get components => [
       AtomicPlaygroundComponent(
           type: AtomicType.molecule,
-          title: "WAMF-3 Grid View whiteMountainView ",
+          title: "WAMF-3 Grid View blackMountain ",
           component: GridView.count(
             // Create a grid with 2 columns. If you change the scrollDirection to
             // horizontal, this produces 2 rows.
@@ -17,7 +17,7 @@ class GridViewEntry extends PlaygroundEntry {
               return Center(
                 child: Text(
                   'Item $index',
-                  style: Typography.whiteMountainView.headline,
+                  style: Typography.blackMountainView.headline,
                 ),
               );
             }),
