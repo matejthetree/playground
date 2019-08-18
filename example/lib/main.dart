@@ -1,8 +1,9 @@
+import 'package:example/src/toy_boxes/wamf-1_flat_button.dart';
+import 'package:example/src/toy_boxes/wamf-2_flat_button.dart';
+import 'package:example/src/toy_boxes/wamf-3_grid_view.dart';
 import 'package:flutter/material.dart';
 import 'package:wamf_playground/wamf_playground.dart';
-import 'src/entries/WAMF-1-flat_button_entry.dart';
-import 'src/entries/WAMF-2-simple_form_entry.dart';
-import 'src/entries/WAMF-3-grid_view_entry.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -24,23 +25,13 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: Scaffold(
-        body: AtomicPlaygroundView(
-          entries: [
-            WAMF_1_FlatButtonEntry(),
-            ..._moleculeEntries(),
-
-          ],
-        ),
-      ),
+          body: Playground(
+        viewModel: PlaygroundViewModel(title: "This is Playground", toyBoxes: [
+          FlatButtonToyBox(),
+          SimpleFormToyBox(),
+          GridViewToyBox()
+        ]),
+      )),
     );
   }
-
-  List<PlaygroundEntry> _moleculeEntries() {
-    return [
-      WAMF_2_SimpleFormEntry(),
-      WAMF_3_GridViewEntry()
-    ];
-  }
 }
-
-
