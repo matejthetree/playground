@@ -1,24 +1,19 @@
 import 'package:flutter/material.dart';
 
-class PlaygroundViewModel {
+
+class Playground extends StatefulWidget {
   final String title;
   final List<ToyBox> toyBoxes;
 
-  const PlaygroundViewModel({
-    this.title,
+  const Playground({
+    @required this.title,
     @required this.toyBoxes,
   });
-}
 
-class Playground extends StatefulWidget {
-  final PlaygroundViewModel _viewModel;
-
-  const Playground({
-    @required PlaygroundViewModel viewModel,
-  }) : _viewModel = viewModel;
 
   @override
   _PlaygroundState createState() => _PlaygroundState();
+
 }
 
 class _PlaygroundState extends State<Playground> {
@@ -31,7 +26,7 @@ class _PlaygroundState extends State<Playground> {
 
   @override
   Widget build(BuildContext context) {
-    List<ToyBox> toyBoxes = widget._viewModel.toyBoxes;
+    List<ToyBox> toyBoxes = widget.toyBoxes;
     List<ToyBox> atomicFiltered = !_atomicFilter.isAll
         ? toyBoxes.where((toyBox) {
             return _atomicFilter.typeActive(toyBox.atomicType);
@@ -58,7 +53,7 @@ class _PlaygroundState extends State<Playground> {
                   },
                 ),
               )
-            : Text(widget._viewModel.title),
+            : Text(widget.title),
         actions: <Widget>[
           IconButton(
             icon: Icon(_searchActive ? Icons.close : Icons.search),
@@ -153,6 +148,8 @@ class AtomicFilter {
         return template;
       case AtomicType.page:
         return page;
+      default:
+        return null;
     }
   }
 }
@@ -263,16 +260,18 @@ abstract class ToyBox {
         return "T";
       case AtomicType.page:
         return "P";
+      default:
+        return null;
     }
   }
 }
 
 class Toy extends StatelessWidget {
-  final Widget child;
+  final WidgetBuilder childBuilder;
   final String variation;
 
   const Toy({
-    @required this.child,
+    @required this.childBuilder,
     @required this.variation,
   });
 
@@ -285,7 +284,7 @@ class Toy extends StatelessWidget {
                 appBar: AppBar(
                   title: Text(variation),
                 ),
-                body: child,
+            body: childBuilder(context),
               ))),
     );
   }

@@ -8,8 +8,8 @@ class FlatButtonToyBox extends ToyBox {
     issue:'WAMF-1',
     title:"Flat Button",
     toys:[
-      Toy(variation: 'Button Disabled',child:  FlatButton(onPressed: null, child: Text("Flat Button Disabled")),),
-      Toy(variation: 'Button Enabled',child: FlatButton(onPressed: (){}, child: Text("Flat Button Enabled"))),
+      Toy(variation: 'Button Disabled',childBuilder: (context)=> FlatButton(onPressed: null, child: Text("Flat Button Disabled")),),
+      Toy(variation: 'Button Enabled',childBuilder:(context)=> FlatButton(onPressed: (){}, child: Text("Flat Button Enabled"))),
     ]
 
   );

@@ -25,13 +25,11 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: Scaffold(
-          body: Playground(
-        viewModel: PlaygroundViewModel(title: "This is Playground", toyBoxes: [
+        body: Playground(title: "This is Playground", toyBoxes: [
           FlatButtonToyBox(),
           SimpleFormToyBox(),
           GridViewToyBox()
         ]),
-      )),
-    );
+      ));
   }
 }

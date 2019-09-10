@@ -10,7 +10,8 @@ class GridViewToyBox extends ToyBox {
             toys: [
               Toy(
                 variation: 'black cupertino',
-                child: GridView.count(
+                childBuilder: (context) =>
+                    GridView.count(
                   // Create a grid with 2 columns. If you change the scrollDirection to
                   // horizontal, this produces 2 rows.
                   crossAxisCount: 2,
@@ -27,7 +28,8 @@ class GridViewToyBox extends ToyBox {
               ),
               Toy(
                 variation: 'black mountain',
-                child: GridView.count(
+                childBuilder: (context) =>
+                    GridView.count(
                   // Create a grid with 2 columns. If you change the scrollDirection to
                   // horizontal, this produces 2 rows.
                   crossAxisCount: 2,
@@ -44,7 +46,8 @@ class GridViewToyBox extends ToyBox {
               ),
               Toy(
                 variation: 'englishLike',
-                child: GridView.count(
+                childBuilder: (context) =>
+                    GridView.count(
                   // Create a grid with 2 columns. If you change the scrollDirection to
                   // horizontal, this produces 2 rows.
                   crossAxisCount: 2,

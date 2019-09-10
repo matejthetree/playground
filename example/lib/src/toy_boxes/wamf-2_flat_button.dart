@@ -11,7 +11,7 @@ class SimpleFormToyBox extends ToyBox {
             title: "Form Molecule",
             toys: [
               Toy(
-                child: MyCustomForm(),
+                childBuilder: (context)=>MyCustomForm(),
                 variation: "Default Style",
               )
             ]);
