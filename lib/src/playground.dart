@@ -272,7 +272,8 @@ class Toy extends StatelessWidget {
   const Toy(
       {@required this.childBuilder,
       @required this.variation,
-      this.disableAppBar = false, this.resizable = false});
+      this.disableAppBar = false,
+      this.resizable = false});
 
   @override
   Widget build(BuildContext context) {
@@ -285,12 +286,15 @@ class Toy extends StatelessWidget {
                     : AppBar(
                         title: Text(variation),
                       ),
-                body: resizable ? ResizableToy(builder: childBuilder,) :childBuilder(context),
+                body: resizable
+                    ? ResizableToy(
+                        builder: childBuilder,
+                      )
+                    : childBuilder(context),
               ))),
     );
   }
 }
-
 
 class ResizableToy extends StatefulWidget {
   final WidgetBuilder builder;
@@ -355,6 +359,5 @@ class _ResizableToyState extends State<ResizableToy> {
     _currentOffset.dispose();
   }
 }
-
 
 enum AtomicType { atom, molecule, organism, template, page }
