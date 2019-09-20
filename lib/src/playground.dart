@@ -266,13 +266,13 @@ abstract class ToyBox {
 class Toy extends StatelessWidget {
   final WidgetBuilder childBuilder;
   final String variation;
-  final bool disableAppBar;
+  final bool disableScaffold;
   final bool resizable;
 
   const Toy(
       {@required this.childBuilder,
       @required this.variation,
-      this.disableAppBar = false,
+        this.disableScaffold = false,
       this.resizable = false});
 
   @override
@@ -280,19 +280,24 @@ class Toy extends StatelessWidget {
     return ListTile(
       title: Text(variation),
       onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => Scaffold(
-                appBar: disableAppBar
-                    ? null
-                    : AppBar(
-                        title: Text(variation),
-                      ),
-                body: resizable
-                    ? ResizableToy(
-                        builder: childBuilder,
-                      )
-                    : childBuilder(context),
-              ))),
+          builder: (context) =>
+          disableScaffold
+              ? buildBody(context)
+              : Scaffold(
+            appBar: AppBar(
+              title: Text(variation),
+            ),
+            body: buildBody(context),
+          ))),
     );
+  }
+
+  Widget buildBody(BuildContext context) {
+    return resizable
+        ? ResizableToy(
+      builder: childBuilder,
+    )
+        : childBuilder(context);
   }
 }
 
