@@ -1,21 +1,13 @@
 import 'package:flutter/material.dart';
 
-class PlaygroundViewModel {
+class Playground extends StatefulWidget {
   final String title;
   final List<ToyBox> toyBoxes;
 
-  const PlaygroundViewModel({
-    this.title,
+  const Playground({
+    @required this.title,
     @required this.toyBoxes,
   });
-}
-
-class Playground extends StatefulWidget {
-  final PlaygroundViewModel _viewModel;
-
-  const Playground({
-    @required PlaygroundViewModel viewModel,
-  }) : _viewModel = viewModel;
 
   @override
   _PlaygroundState createState() => _PlaygroundState();
@@ -31,7 +23,7 @@ class _PlaygroundState extends State<Playground> {
 
   @override
   Widget build(BuildContext context) {
-    List<ToyBox> toyBoxes = widget._viewModel.toyBoxes;
+    List<ToyBox> toyBoxes = widget.toyBoxes;
     List<ToyBox> atomicFiltered = !_atomicFilter.isAll
         ? toyBoxes.where((toyBox) {
             return _atomicFilter.typeActive(toyBox.atomicType);
@@ -58,7 +50,7 @@ class _PlaygroundState extends State<Playground> {
                   },
                 ),
               )
-            : Text(widget._viewModel.title),
+            : Text(widget.title),
         actions: <Widget>[
           IconButton(
             icon: Icon(_searchActive ? Icons.close : Icons.search),
@@ -92,7 +84,7 @@ class _PlaygroundState extends State<Playground> {
             var expanded = _searchActive &&
                 !_containsSearch(toyBox.title) &&
                 !_containsSearch(toyBox.issue);
-            return toyBox.build(context, expanded, _searchString);
+            return toyBox.construct(context, expanded, _searchString);
           }),
     );
   }
@@ -153,6 +145,8 @@ class AtomicFilter {
         return template;
       case AtomicType.page:
         return page;
+      default:
+        return null;
     }
   }
 }
@@ -236,7 +230,7 @@ abstract class ToyBox {
     @required this.atomicType,
   });
 
-  Widget build(BuildContext context, bool expanded, String searchString) {
+  Widget construct(BuildContext context, bool expanded, String searchString) {
     return ExpansionTile(
         key: UniqueKey(),
         //todo check why it wont rebuild without this when initially changes. possible bug
@@ -263,31 +257,111 @@ abstract class ToyBox {
         return "T";
       case AtomicType.page:
         return "P";
+      default:
+        return null;
     }
   }
 }
 
 class Toy extends StatelessWidget {
-  final Widget child;
+  final WidgetBuilder childBuilder;
   final String variation;
+  final bool disableScaffold;
+  final bool resizable;
 
-  const Toy({
-    @required this.child,
-    @required this.variation,
-  });
+  const Toy(
+      {@required this.childBuilder,
+      @required this.variation,
+        this.disableScaffold = false,
+      this.resizable = false});
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(variation),
       onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => Scaffold(
-                appBar: AppBar(
-                  title: Text(variation),
-                ),
-                body: child,
-              ))),
+          builder: (context) =>
+          disableScaffold
+              ? buildBody(context)
+              : Scaffold(
+            appBar: AppBar(
+              title: Text(variation),
+            ),
+            body: buildBody(context),
+          ))),
     );
+  }
+
+  Widget buildBody(BuildContext context) {
+    return resizable
+        ? ResizableToy(
+      builder: childBuilder,
+    )
+        : childBuilder(context);
+  }
+}
+
+class ResizableToy extends StatefulWidget {
+  final WidgetBuilder builder;
+
+  @override
+  _ResizableToyState createState() => _ResizableToyState();
+
+  const ResizableToy({
+    this.builder,
+  });
+}
+
+class _ResizableToyState extends State<ResizableToy> {
+  ValueNotifier<Offset> _currentOffset = ValueNotifier(Offset(1, 1));
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<Offset>(
+      valueListenable: _currentOffset,
+      builder: (context, value, _) {
+        return LayoutBuilder(
+          builder: (context, size) => Stack(
+            children: <Widget>[
+              Container(
+                width: size.maxWidth * value.dx,
+                height: size.maxHeight * value.dy,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.blue, width: 5),
+                ),
+                child: widget.builder(context),
+              ),
+              Positioned(
+                left: size.maxWidth * value.dx,
+                top: size.maxHeight * value.dy,
+                child: FractionalTranslation(
+                    translation: Offset(-1, -1),
+                    child: GestureDetector(
+                      child: Icon(Icons.photo_size_select_small),
+                      onPanUpdate: (pan) {
+                        var dx2 = pan.globalPosition.dx / size.maxWidth;
+                        var dy2 = pan.globalPosition.dy / size.maxHeight;
+                        _currentOffset.value =
+                            Offset(dx2 > 1 ? 1 : dx2, dy2 > 1 ? 1 : dy2);
+                      },
+                    )),
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _currentOffset.dispose();
   }
 }
 
