@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
+
+import 'package:url_launcher/url_launcher.dart';
 
 class Playground extends StatefulWidget {
   final String title;
   final List<ToyBox> toyBoxes;
+  final List<PlaygroundUser> users;
 
-  const Playground({
-    @required this.title,
-    @required this.toyBoxes,
-  });
+  const Playground(
+      {@required this.title, @required this.toyBoxes, @required this.users});
 
   @override
   _PlaygroundState createState() => _PlaygroundState();
@@ -221,27 +224,45 @@ abstract class ToyBox {
   final List<Toy> toys;
   final String title;
   final String issue;
+  final String issueUrl;
   final AtomicType atomicType;
+  final String authorEmail;
 
-  const ToyBox({
-    @required this.toys,
-    @required this.title,
-    @required this.issue,
-    @required this.atomicType,
-  });
+  const ToyBox(
+      {@required this.toys,
+      @required this.title,
+      @required this.issue,
+      @required this.issueUrl,
+      @required this.atomicType,
+      this.authorEmail});
+
+  String get md5sha => md5.convert(utf8.encode(authorEmail)).toString();
+  String get gravatarUrl => 'https://www.gravatar.com/avatar/$md5sha';
 
   Widget construct(BuildContext context, bool expanded, String searchString) {
     return ExpansionTile(
         key: UniqueKey(),
         //todo check why it wont rebuild without this when initially changes. possible bug
         initiallyExpanded: expanded,
-        leading: Container(
-          child: Text(issue),
-        ),
         title: Text(title),
-        trailing: CircleAvatar(
-          child: Text(_atomicTypeInitial(atomicType)),
-        ),
+        leading: issueUrl == null
+            ? Text(issue)
+            : GestureDetector(
+                onTap: _launchIssueUrl,
+                child: Text(
+                  issue,
+                  style: TextStyle(
+                      decoration: TextDecoration.underline,
+                      color: Colors.lightBlue),
+                ),
+              ),
+        trailing: authorEmail == null
+            ? CircleAvatar(
+                child: Text(_atomicTypeInitial(atomicType)),
+              )
+            : CircleAvatar(
+                backgroundImage: Image.network(gravatarUrl).image,
+              ),
         children: toys);
   }
 
@@ -261,6 +282,14 @@ abstract class ToyBox {
         return null;
     }
   }
+
+  void _launchIssueUrl() async {
+    if (await canLaunch(issueUrl)) {
+      await launch(issueUrl);
+    } else {
+      print('Could not launch $issueUrl');
+    }
+  }
 }
 
 class Toy extends StatelessWidget {
@@ -272,7 +301,7 @@ class Toy extends StatelessWidget {
   const Toy(
       {@required this.childBuilder,
       @required this.variation,
-        this.disableScaffold = false,
+      this.disableScaffold = false,
       this.resizable = false});
 
   @override
@@ -280,23 +309,22 @@ class Toy extends StatelessWidget {
     return ListTile(
       title: Text(variation),
       onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) =>
-          disableScaffold
+          builder: (context) => disableScaffold
               ? buildBody(context)
               : Scaffold(
-            appBar: AppBar(
-              title: Text(variation),
-            ),
-            body: buildBody(context),
-          ))),
+                  appBar: AppBar(
+                    title: Text(variation),
+                  ),
+                  body: buildBody(context),
+                ))),
     );
   }
 
   Widget buildBody(BuildContext context) {
     return resizable
         ? ResizableToy(
-      builder: childBuilder,
-    )
+            builder: childBuilder,
+          )
         : childBuilder(context);
   }
 }
@@ -366,3 +394,12 @@ class _ResizableToyState extends State<ResizableToy> {
 }
 
 enum AtomicType { atom, molecule, organism, template, page }
+
+class PlaygroundUser {
+  final String email;
+  final String username;
+
+  PlaygroundUser(this.email, this.username);
+
+  get md5Hash => md5.convert(utf8.encode(email)).toString();
+}
