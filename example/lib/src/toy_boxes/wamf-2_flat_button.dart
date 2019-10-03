@@ -7,6 +7,8 @@ class SimpleFormToyBox extends ToyBox {
             atomicType: AtomicType.molecule,
             issue: "WAMF-2",
             title: "Form Molecule",
+            issueUrl: 'www.wearemobilefirst.com',
+            authorEmail: 'matej@wearemobilefirst.com',
             toys: [
               Toy(
                 childBuilder: (context) => MyCustomForm(),
