@@ -10,10 +10,9 @@ class GridViewToyBox extends ToyBox {
             toys: [
               Toy(
                 variation: 'black cupertino',
-                childBuilder: (context) =>
-                    GridView.count(
+                childBuilder: (context) => GridView.count(
                   // Create a grid with 2 columns. If you change the scrollDirection to
-                      // horizontal, this produces 2 items.
+                  // horizontal, this produces 2 items.
                   crossAxisCount: 2,
                   // Generate 100 widgets that display their index in the List.
                   children: List.generate(100, (index) {
@@ -28,10 +27,9 @@ class GridViewToyBox extends ToyBox {
               ),
               Toy(
                 variation: 'black mountain',
-                childBuilder: (context) =>
-                    GridView.count(
+                childBuilder: (context) => GridView.count(
                   // Create a grid with 2 columns. If you change the scrollDirection to
-                      // horizontal, this produces 2 items.
+                  // horizontal, this produces 2 items.
                   crossAxisCount: 2,
                   // Generate 100 widgets that display their index in the List.
                   children: List.generate(100, (index) {
@@ -46,10 +44,9 @@ class GridViewToyBox extends ToyBox {
               ),
               Toy(
                 variation: 'englishLike',
-                childBuilder: (context) =>
-                    GridView.count(
+                childBuilder: (context) => GridView.count(
                   // Create a grid with 2 columns. If you change the scrollDirection to
-                      // horizontal, this produces 2 items.
+                  // horizontal, this produces 2 items.
                   crossAxisCount: 2,
                   // Generate 100 widgets that display their index in the List.
                   children: List.generate(100, (index) {
