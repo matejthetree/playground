@@ -7,10 +7,9 @@ import 'package:url_launcher/url_launcher.dart';
 class Playground extends StatefulWidget {
   final String title;
   final List<ToyBox> toyBoxes;
-  final List<PlaygroundUser> users;
 
   const Playground(
-      {@required this.title, @required this.toyBoxes, @required this.users});
+      {@required this.title, @required this.toyBoxes});
 
   @override
   _PlaygroundState createState() => _PlaygroundState();
@@ -232,7 +231,7 @@ abstract class ToyBox {
       {@required this.toys,
       @required this.title,
       @required this.issue,
-      @required this.issueUrl,
+      this.issueUrl,
       @required this.atomicType,
       this.authorEmail});
 
@@ -394,12 +393,3 @@ class _ResizableToyState extends State<ResizableToy> {
 }
 
 enum AtomicType { atom, molecule, organism, template, page }
-
-class PlaygroundUser {
-  final String email;
-  final String username;
-
-  PlaygroundUser(this.email, this.username);
-
-  get md5Hash => md5.convert(utf8.encode(email)).toString();
-}
