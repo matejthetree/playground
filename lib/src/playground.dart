@@ -26,14 +26,7 @@ class _PlaygroundState extends State<Playground> {
     List<Toy> toys = widget.toys;
     List<Toy> stringFiltered;
     if (_searchString != '') {
-      stringFiltered = toys
-          .where((toy) =>
-      toy is ToyBox
-          ? _containsSearch(toy.issue) ||
-          _containsSearch(toy.title) ||
-          toy.toys.any((toy) => _containsSearch(toy.title))
-          : _containsSearch(toy.title))
-          .toList();
+      stringFiltered = toys.where((toy) => _toyContainsSearch(toy)).toList();
     } else {
       stringFiltered = toys;
     }
@@ -68,24 +61,23 @@ class _PlaygroundState extends State<Playground> {
           itemCount: stringFiltered.length,
           itemBuilder: (context, index) {
             var toy = stringFiltered[index];
-            if (_searchActive) {
-              if (toy is ToyBox) {
-                return (!_containsSearch(toy.title) &&
-                    !_containsSearch(toy.issue))
-                    ? toy.expand ? toy : toy.copyWith(expand: true)
-                    : toy;
-              } else {
-                return toy;
-              }
-            } else {
-              return toy;
-            }
+            return toy; //todo expand on search
           }),
     );
   }
 
-  bool _containsSearch(String string) =>
-      string.toLowerCase().contains(_textController.text.toLowerCase());
+  bool _toyContainsSearch(Toy toy) {
+    var toyContains =
+        _stringContainsSearch(toy.issue) || _stringContainsSearch(toy.title);
+    return toy is ToyBox
+        ? toyContains || toy.toys.any((toy) => _toyContainsSearch(toy))
+        : toyContains;
+  }
+
+  bool _stringContainsSearch(String string) =>
+      string != null
+          ? string.toLowerCase().contains(_textController.text.toLowerCase())
+          : false;
 }
 
 class ToyBox extends Toy {
@@ -98,12 +90,13 @@ class ToyBox extends Toy {
   String get gravatarUrl => 'https://www.gravatar.com/avatar/$md5sha';
 
   const ToyBox({@required this.toys,
-    issue,
-    issueUrl,
+    String issue,
+    String issueUrl,
+    List<String> tags,
     this.authorEmail,
     this.expand = false,
-    title})
-      : super(title: title, issue: issue, issueUrl: issueUrl);
+    String title})
+      : super(title: title, tags: tags, issue: issue, issueUrl: issueUrl);
 
   ToyBox copyWith({
     List<Toy> toys,
@@ -120,25 +113,29 @@ class ToyBox extends Toy {
       issueUrl: issueUrl ?? this.issueUrl,
       authorEmail: authorEmail ?? this.authorEmail,
       expand: expand ?? this.expand,
+      tags: tags ?? this.tags,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(top: 14.0),
-          child: Icon(
-            Icons.keyboard_arrow_down,
-            color: Colors.grey,
-          ),
-        ),
-        Expanded(
-          child: ExpansionTile(
-              title: Text(title),
-              leading: issueUrl == null
+    return ExpansionTile(
+        initiallyExpanded: expand,
+        title: Text(title),
+        leading: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 4.0, right: 8),
+              child: Icon(
+                Icons.keyboard_arrow_down,
+                color: Colors.grey,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: issueUrl == null
                   ? Text(issue)
                   : GestureDetector(
                 onTap: _launchIssueUrl,
@@ -149,17 +146,17 @@ class ToyBox extends Toy {
                       color: Colors.lightBlue),
                 ),
               ),
-              trailing: authorEmail == null
-                  ? null
-                  : CircleAvatar(
-                backgroundImage: Image
-                    .network(gravatarUrl)
-                    .image,
-              ),
-              children: toys),
+            ),
+          ],
         ),
-      ],
-    );
+        trailing: authorEmail == null
+            ? null
+            : CircleAvatar(
+          backgroundImage: Image
+              .network(gravatarUrl)
+              .image,
+              ),
+        children: toys);
   }
 
   void _launchIssueUrl() async {
@@ -172,18 +169,20 @@ class ToyBox extends Toy {
 }
 
 class Toy extends StatelessWidget {
-  final WidgetBuilder childBuilder;
+  final WidgetBuilder builder;
   final String title;
   final bool disableScaffold;
   final bool resizable;
   final String issue;
   final String issueUrl;
+  final List<String> tags;
 
-  const Toy({this.childBuilder,
+  const Toy({this.builder,
+    this.tags,
     this.title,
       this.disableScaffold = false,
     this.resizable = false,
-    this.issue,
+    this.issue = '',
     this.issueUrl});
 
   @override
@@ -205,9 +204,9 @@ class Toy extends StatelessWidget {
   Widget buildBody(BuildContext context) {
     return resizable
         ? ResizableToy(
-            builder: childBuilder,
+      builder: builder,
           )
-        : childBuilder(context);
+        : builder(context);
   }
 }
 
@@ -274,5 +273,3 @@ class _ResizableToyState extends State<ResizableToy> {
     _currentOffset.dispose();
   }
 }
-
-enum AtomicType { atom, molecule, organism, template, page }

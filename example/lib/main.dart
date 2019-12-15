@@ -29,29 +29,31 @@ class MyApp extends StatelessWidget {
               title: 'Flat Button',
               issueUrl: 'www.wearemobilefirst.com',
               authorEmail: 'matej@wearemobilefirst.com',
+              tags: ['atom'],
               toys: [
                 Toy(
                   title: 'Button Disabled',
-                  childBuilder: (context) =>
+                  builder: (context) =>
                       FlatButton(
                           onPressed: null, child: Text("Flat Button Disabled")),
                 ),
                 Toy(
                     title: 'Button Enabled',
-                    childBuilder: (context) =>
+                    builder: (context) =>
                         FlatButton(
                             onPressed: () {},
                             child: Text("Flat Button Enabled"))),
               ],
             ),
             ToyBox(
+              tags: ['molecule'],
               issue: "WAMF-2",
               title: "Form Molecule",
               issueUrl: 'www.wearemobilefirst.com',
               authorEmail: 'matej@wearemobilefirst.com',
               toys: [
                 Toy(
-                  childBuilder: (context) => MyCustomForm(),
+                  builder: (context) => MyCustomForm(),
                   title: "Default Style",
                 )
               ],
@@ -59,10 +61,11 @@ class MyApp extends StatelessWidget {
             ToyBox(
               issue: "WAMF-3",
               title: "Grid View",
+              tags: ['organism'],
               toys: [
                 Toy(
                   title: 'black cupertino',
-                  childBuilder: (context) =>
+                  builder: (context) =>
                       GridView.count(
                         // Create a grid with 2 columns. If you change the scrollDirection to
                         // horizontal, this produces 2 items.
@@ -80,7 +83,7 @@ class MyApp extends StatelessWidget {
                 ),
                 Toy(
                   title: 'black mountain',
-                  childBuilder: (context) =>
+                  builder: (context) =>
                       GridView.count(
                         // Create a grid with 2 columns. If you change the scrollDirection to
                         // horizontal, this produces 2 items.
@@ -98,7 +101,7 @@ class MyApp extends StatelessWidget {
                 ),
                 Toy(
                   title: 'englishLike',
-                  childBuilder: (context) =>
+                  builder: (context) =>
                       GridView.count(
                         // Create a grid with 2 columns. If you change the scrollDirection to
                         // horizontal, this produces 2 items.
@@ -118,7 +121,10 @@ class MyApp extends StatelessWidget {
             ),
             Toy(
               title: 'only Toy',
-              childBuilder: (context) =>
+              tags: [
+                'dev',
+              ],
+              builder: (context) =>
                   Center(
                     child: Container(
                       width: 50,
