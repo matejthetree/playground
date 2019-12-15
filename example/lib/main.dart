@@ -1,6 +1,4 @@
-import 'package:example/src/toy_boxes/wamf-1_flat_button.dart';
-import 'package:example/src/toy_boxes/wamf-2_flat_button.dart';
-import 'package:example/src/toy_boxes/wamf-3_grid_view.dart';
+import 'package:example/src/ui/my_custom_form.dart';
 import 'package:flutter/material.dart';
 import 'package:wamf_playground/wamf_playground.dart';
 
@@ -25,10 +23,110 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         home: Scaffold(
-          body: Playground(title: "This is Playground", toyBoxes: [
-            FlatButtonToyBox(),
-            SimpleFormToyBox(),
-            GridViewToyBox()
+          body: Playground(title: "This is Playground", toys: [
+            ToyBox(
+              issue: 'WAMF-1',
+              title: 'Flat Button',
+              issueUrl: 'www.wearemobilefirst.com',
+              authorEmail: 'matej@wearemobilefirst.com',
+              toys: [
+                Toy(
+                  title: 'Button Disabled',
+                  childBuilder: (context) =>
+                      FlatButton(
+                          onPressed: null, child: Text("Flat Button Disabled")),
+                ),
+                Toy(
+                    title: 'Button Enabled',
+                    childBuilder: (context) =>
+                        FlatButton(
+                            onPressed: () {},
+                            child: Text("Flat Button Enabled"))),
+              ],
+            ),
+            ToyBox(
+              issue: "WAMF-2",
+              title: "Form Molecule",
+              issueUrl: 'www.wearemobilefirst.com',
+              authorEmail: 'matej@wearemobilefirst.com',
+              toys: [
+                Toy(
+                  childBuilder: (context) => MyCustomForm(),
+                  title: "Default Style",
+                )
+              ],
+            ),
+            ToyBox(
+              issue: "WAMF-3",
+              title: "Grid View",
+              toys: [
+                Toy(
+                  title: 'black cupertino',
+                  childBuilder: (context) =>
+                      GridView.count(
+                        // Create a grid with 2 columns. If you change the scrollDirection to
+                        // horizontal, this produces 2 items.
+                        crossAxisCount: 2,
+                        // Generate 100 widgets that display their index in the List.
+                        children: List.generate(100, (index) {
+                          return Center(
+                            child: Text(
+                              'Item $index',
+                              style: Typography.blackCupertino.headline,
+                            ),
+                          );
+                        }),
+                      ),
+                ),
+                Toy(
+                  title: 'black mountain',
+                  childBuilder: (context) =>
+                      GridView.count(
+                        // Create a grid with 2 columns. If you change the scrollDirection to
+                        // horizontal, this produces 2 items.
+                        crossAxisCount: 2,
+                        // Generate 100 widgets that display their index in the List.
+                        children: List.generate(100, (index) {
+                          return Center(
+                            child: Text(
+                              'Item $index',
+                              style: Typography.blackMountainView.headline,
+                            ),
+                          );
+                        }),
+                      ),
+                ),
+                Toy(
+                  title: 'englishLike',
+                  childBuilder: (context) =>
+                      GridView.count(
+                        // Create a grid with 2 columns. If you change the scrollDirection to
+                        // horizontal, this produces 2 items.
+                        crossAxisCount: 2,
+                        // Generate 100 widgets that display their index in the List.
+                        children: List.generate(100, (index) {
+                          return Center(
+                            child: Text(
+                              'Item $index',
+                              style: Typography.englishLike2018.headline,
+                            ),
+                          );
+                        }),
+                      ),
+                ),
+              ],
+            ),
+            Toy(
+              title: 'only Toy',
+              childBuilder: (context) =>
+                  Center(
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      color: Colors.pink,
+                    ),
+                  ),
+            )
           ]),
         ));
   }

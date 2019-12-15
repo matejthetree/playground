@@ -1,22 +1,20 @@
-import 'package:flutter/material.dart';
-import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
+import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Playground extends StatefulWidget {
   final String title;
-  final List<ToyBox> toyBoxes;
+  final List<Toy> toys;
 
-  const Playground(
-      {@required this.title, @required this.toyBoxes});
+  const Playground({@required this.title, @required this.toys});
 
   @override
   _PlaygroundState createState() => _PlaygroundState();
 }
 
 class _PlaygroundState extends State<Playground> {
-  AtomicFilter _atomicFilter = AtomicFilter.all();
   bool _searchActive = false;
 
   TextEditingController _textController = TextEditingController();
@@ -25,20 +23,21 @@ class _PlaygroundState extends State<Playground> {
 
   @override
   Widget build(BuildContext context) {
-    List<ToyBox> toyBoxes = widget.toyBoxes;
-    List<ToyBox> atomicFiltered = !_atomicFilter.isAll
-        ? toyBoxes.where((toyBox) {
-            return _atomicFilter.typeActive(toyBox.atomicType);
-          }).toList()
-        : toyBoxes;
-    List<ToyBox> stringFiltered = _searchString != ''
-        ? atomicFiltered
-            .where((toyBox) =>
-                _containsSearch(toyBox.issue) ||
-                _containsSearch(toyBox.title) ||
-                toyBox.toys.any((toy) => _containsSearch(toy.variation)))
-            .toList()
-        : atomicFiltered;
+    List<Toy> toys = widget.toys;
+    List<Toy> stringFiltered;
+    if (_searchString != '') {
+      stringFiltered = toys
+          .where((toy) =>
+      toy is ToyBox
+          ? _containsSearch(toy.issue) ||
+          _containsSearch(toy.title) ||
+          toy.toys.any((toy) => _containsSearch(toy.title))
+          : _containsSearch(toy.title))
+          .toList();
+    } else {
+      stringFiltered = toys;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: _searchActive
@@ -63,30 +62,24 @@ class _PlaygroundState extends State<Playground> {
               }
             }),
           ),
-          IconButton(
-            icon: Icon(Icons.more_vert),
-            onPressed: () => showModalBottomSheet(
-                context: context,
-                builder: (buildContext) => StatefulBuilder(
-                      builder: (context, setModalState) => AtomicFilterModal(
-                          atomicFilter: _atomicFilter,
-                          onChange: (atomicFilter) {
-                            _atomicFilter = atomicFilter;
-                            setState(() {});
-                            setModalState(() {});
-                          }),
-                    )),
-          ),
         ],
       ),
       body: ListView.builder(
           itemCount: stringFiltered.length,
           itemBuilder: (context, index) {
-            var toyBox = stringFiltered[index];
-            var expanded = _searchActive &&
-                !_containsSearch(toyBox.title) &&
-                !_containsSearch(toyBox.issue);
-            return toyBox.construct(context, expanded, _searchString);
+            var toy = stringFiltered[index];
+            if (_searchActive) {
+              if (toy is ToyBox) {
+                return (!_containsSearch(toy.title) &&
+                    !_containsSearch(toy.issue))
+                    ? toy.expand ? toy : toy.copyWith(expand: true)
+                    : toy;
+              } else {
+                return toy;
+              }
+            } else {
+              return toy;
+            }
           }),
     );
   }
@@ -95,158 +88,59 @@ class _PlaygroundState extends State<Playground> {
       string.toLowerCase().contains(_textController.text.toLowerCase());
 }
 
-class AtomicFilter {
-  final bool atom;
-  final bool molecule;
-  final bool organism;
-  final bool template;
-  final bool page;
-
-  const AtomicFilter({
-    @required this.atom,
-    @required this.molecule,
-    @required this.organism,
-    @required this.template,
-    @required this.page,
-  });
-
-  bool get isAll => atom && molecule && organism && template && page;
-
-  AtomicFilter copyWith({
-    bool atom,
-    bool molecule,
-    bool organism,
-    bool template,
-    bool page,
-  }) {
-    return new AtomicFilter(
-      atom: atom ?? this.atom,
-      molecule: molecule ?? this.molecule,
-      organism: organism ?? this.organism,
-      template: template ?? this.template,
-      page: page ?? this.page,
-    );
-  }
-
-  AtomicFilter.all()
-      : this.atom = true,
-        this.molecule = true,
-        this.organism = true,
-        this.template = true,
-        this.page = true;
-
-  bool typeActive(AtomicType atomicType) {
-    switch (atomicType) {
-      case AtomicType.atom:
-        return atom;
-      case AtomicType.molecule:
-        return molecule;
-      case AtomicType.organism:
-        return organism;
-      case AtomicType.template:
-        return template;
-      case AtomicType.page:
-        return page;
-      default:
-        return null;
-    }
-  }
-}
-
-typedef void AtomicFilterCallback(AtomicFilter atomicFilter);
-
-class AtomicFilterModal extends StatelessWidget {
-  final AtomicFilter atomicFilter;
-  final Function onChange;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(mainAxisSize: MainAxisSize.min, children: [
-      Row(
-        children: <Widget>[
-          Text("Atom"),
-          Checkbox(
-            value: atomicFilter.atom,
-            onChanged: (value) => onChange(atomicFilter.copyWith(atom: value)),
-          ),
-        ],
-      ),
-      Row(
-        children: <Widget>[
-          Text("Molecule"),
-          Checkbox(
-            value: atomicFilter.molecule,
-            onChanged: (value) =>
-                onChange(atomicFilter.copyWith(molecule: value)),
-          ),
-        ],
-      ),
-      Row(
-        children: <Widget>[
-          Text("Organism"),
-          Checkbox(
-            value: atomicFilter.organism,
-            onChanged: (value) =>
-                onChange(atomicFilter.copyWith(organism: value)),
-          ),
-        ],
-      ),
-      Row(
-        children: <Widget>[
-          Text("Template"),
-          Checkbox(
-            value: atomicFilter.template,
-            onChanged: (value) =>
-                onChange(atomicFilter.copyWith(template: value)),
-          ),
-        ],
-      ),
-      Row(
-        children: <Widget>[
-          Text("Page"),
-          Checkbox(
-            value: atomicFilter.page,
-            onChanged: (value) => onChange(atomicFilter.copyWith(page: value)),
-          ),
-        ],
-      ),
-    ]);
-  }
-
-  const AtomicFilterModal({
-    @required this.atomicFilter,
-    @required this.onChange,
-  });
-}
-
-abstract class ToyBox {
+class ToyBox extends Toy {
   final List<Toy> toys;
-  final String title;
-  final String issue;
-  final String issueUrl;
-  final AtomicType atomicType;
   final String authorEmail;
 
-  const ToyBox(
-      {@required this.toys,
-      @required this.title,
-      @required this.issue,
-      this.issueUrl,
-      @required this.atomicType,
-      this.authorEmail});
+  final bool expand;
 
   String get md5sha => md5.convert(utf8.encode(authorEmail)).toString();
   String get gravatarUrl => 'https://www.gravatar.com/avatar/$md5sha';
 
-  Widget construct(BuildContext context, bool expanded, String searchString) {
-    return ExpansionTile(
-        key: UniqueKey(),
-        //todo check why it wont rebuild without this when initially changes. possible bug
-        initiallyExpanded: expanded,
-        title: Text(title),
-        leading: issueUrl == null
-            ? Text(issue)
-            : GestureDetector(
+  const ToyBox({@required this.toys,
+    issue,
+    issueUrl,
+    this.authorEmail,
+    this.expand = false,
+    title})
+      : super(title: title, issue: issue, issueUrl: issueUrl);
+
+  ToyBox copyWith({
+    List<Toy> toys,
+    String title,
+    String issue,
+    String issueUrl,
+    String authorEmail,
+    bool expand,
+  }) {
+    return new ToyBox(
+      toys: toys ?? this.toys,
+      title: title ?? this.title,
+      issue: issue ?? this.issue,
+      issueUrl: issueUrl ?? this.issueUrl,
+      authorEmail: authorEmail ?? this.authorEmail,
+      expand: expand ?? this.expand,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(top: 14.0),
+          child: Icon(
+            Icons.keyboard_arrow_down,
+            color: Colors.grey,
+          ),
+        ),
+        Expanded(
+          child: ExpansionTile(
+              title: Text(title),
+              leading: issueUrl == null
+                  ? Text(issue)
+                  : GestureDetector(
                 onTap: _launchIssueUrl,
                 child: Text(
                   issue,
@@ -255,31 +149,17 @@ abstract class ToyBox {
                       color: Colors.lightBlue),
                 ),
               ),
-        trailing: authorEmail == null
-            ? CircleAvatar(
-                child: Text(_atomicTypeInitial(atomicType)),
-              )
-            : CircleAvatar(
-                backgroundImage: Image.network(gravatarUrl).image,
+              trailing: authorEmail == null
+                  ? null
+                  : CircleAvatar(
+                backgroundImage: Image
+                    .network(gravatarUrl)
+                    .image,
               ),
-        children: toys);
-  }
-
-  String _atomicTypeInitial(AtomicType atomicType) {
-    switch (atomicType) {
-      case AtomicType.atom:
-        return "A";
-      case AtomicType.molecule:
-        return "M";
-      case AtomicType.organism:
-        return "O";
-      case AtomicType.template:
-        return "T";
-      case AtomicType.page:
-        return "P";
-      default:
-        return null;
-    }
+              children: toys),
+        ),
+      ],
+    );
   }
 
   void _launchIssueUrl() async {
@@ -293,26 +173,29 @@ abstract class ToyBox {
 
 class Toy extends StatelessWidget {
   final WidgetBuilder childBuilder;
-  final String variation;
+  final String title;
   final bool disableScaffold;
   final bool resizable;
+  final String issue;
+  final String issueUrl;
 
-  const Toy(
-      {@required this.childBuilder,
-      @required this.variation,
+  const Toy({this.childBuilder,
+    this.title,
       this.disableScaffold = false,
-      this.resizable = false});
+    this.resizable = false,
+    this.issue,
+    this.issueUrl});
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(variation),
+      title: Text(title),
       onTap: () => Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => disableScaffold
               ? buildBody(context)
               : Scaffold(
                   appBar: AppBar(
-                    title: Text(variation),
+                    title: Text(title),
                   ),
                   body: buildBody(context),
                 ))),
